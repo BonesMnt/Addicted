@@ -29,6 +29,10 @@ public class NetworkUtils {
 
     private static final String API_KEY_PARAM = "api_key";
 
+    private static final String REVIEW_PATH = "reviews";
+
+    private static final String TRAILER_PATH = "videos";
+
     /**
      * Builds the URL used to talk to the movieDB server using a sort criteria.
      *
@@ -51,6 +55,46 @@ public class NetworkUtils {
         Log.d(TAG, "Built URL = " + url);
         return url;
     }
+
+    public static URL createReviewUrl(String params) {
+        // https://api.themoviedb.org/3/movie/297761/reviews?api_key=
+        //String
+        Uri builtUri = Uri.parse(MOVIE_URL).buildUpon()
+                .appendPath(params)
+                .appendPath(REVIEW_PATH)
+                .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIEDB_API_KEY)
+                .build();
+        Log.d(TAG, "Built Review URI = "+ builtUri);
+        URL url = null;
+        try{
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "Built Review URL = " + url);
+        return url;
+    }
+
+    public static URL createTrailerUrl(String params) {
+        // https://api.themoviedb.org/3/movie/297761/videos?api_key=
+        //String
+        Uri builtUri = Uri.parse(MOVIE_URL).buildUpon()
+                .appendPath(params)
+                .appendPath(TRAILER_PATH)
+                .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIEDB_API_KEY)
+                .build();
+        Log.d(TAG, "Built Review URI = "+ builtUri);
+        URL url = null;
+        try{
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "Built Review URL = " + url);
+        return url;
+    }
+
+
 
     /**
      * This method returns the entire result from the HTTP response.

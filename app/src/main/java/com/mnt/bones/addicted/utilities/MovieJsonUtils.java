@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.mnt.bones.addicted.Movie;
+import com.mnt.bones.addicted.Review;
+import com.mnt.bones.addicted.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,6 +68,77 @@ public class MovieJsonUtils {
         }
 
         return movieList;
+
+    }
+
+
+    public static ArrayList<Review> getReviewDataFromJson(String reviewJsonStr)
+            throws JSONException {
+
+        ArrayList<Review> reviewList = new ArrayList<>();
+
+        //JSON objects
+        final String OWN_RESULTS = "results";
+        final String OWN_AUTHOR = "author";
+        final String OWN_CONTENT = "content";
+
+
+        JSONObject jsonData = new JSONObject(reviewJsonStr);
+        JSONArray reviewArray = jsonData.getJSONArray(OWN_RESULTS);
+
+        for (int i = 0; i < reviewArray.length(); i++) {
+
+            JSONObject reviewJson = reviewArray.getJSONObject(i);
+
+            String author = reviewJson.optString(OWN_AUTHOR);
+            String content = reviewJson.optString(OWN_CONTENT);
+
+            Review reviewObject = new Review(author, content);
+
+            Log.v(TAG, reviewObject.toString());
+
+            reviewList.add(reviewObject);
+
+        }
+
+        return reviewList;
+
+    }
+
+    public static ArrayList<Trailer> getTrailerDataFromJson(String reviewJsonStr)
+            throws JSONException {
+
+        ArrayList<Trailer> trailerList = new ArrayList<>();
+
+        //JSON objects
+        final String OWN_RESULTS = "results";
+        final String OWN_KEY = "key";
+        final String OWN_NAME = "name";
+        final String OWN_TYPE = "type";
+
+
+        JSONObject jsonData = new JSONObject(reviewJsonStr);
+        JSONArray trailerArray = jsonData.getJSONArray(OWN_RESULTS);
+
+        for (int i = 0; i < trailerArray.length(); i++) {
+
+            JSONObject trailerJson = trailerArray.getJSONObject(i);
+
+            String key = trailerJson.optString(OWN_KEY);
+            String name = trailerJson.optString(OWN_NAME);
+            String type = trailerJson.optString(OWN_TYPE);
+
+            if (type.equals("Trailer")){
+                Trailer trailerObject = new Trailer(key, name);
+
+                Log.v(TAG, trailerObject.toString());
+
+                trailerList.add(trailerObject);
+            }
+
+        }
+
+        return trailerList;
 
     }
 
