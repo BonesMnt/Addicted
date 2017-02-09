@@ -8,6 +8,7 @@ public class Trailer {
 
     private static final String IMAGE_PATH = "http://img.youtube.com/vi/";
     private static final String IMAGE_SUFIX = "/0.jpg";
+    public static final String VIDEO_BASE_URL = "http://m.youtube.com/watch?v=";
 
     private String key;
     private String title;
