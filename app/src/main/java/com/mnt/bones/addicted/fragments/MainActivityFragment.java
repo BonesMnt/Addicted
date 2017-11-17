@@ -33,7 +33,9 @@ public class MainActivityFragment extends Fragment implements AsyncTaskDelegate 
 
     private GridView mGridView;
     private ProgressBar mLoadingBar;
+    private ArrayList<Movie> mMovieList;
 
+    private static final String ON_SAVED_INSTANCE = "MainActivityCallback";
 
     private final String TAG = MainActivityFragment.class.getSimpleName();
 
@@ -49,7 +51,16 @@ public class MainActivityFragment extends Fragment implements AsyncTaskDelegate 
         mGridView = (GridView) view.findViewById(R.id.gv_posters);
         mLoadingBar = (ProgressBar) view.findViewById(R.id.pb_loading);
 
-        mMovieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
+
+        if (savedInstanceState != null){
+            Log.d(TAG, "Restoring Saved Instance");
+            mMovieList = savedInstanceState.getParcelableArrayList(ON_SAVED_INSTANCE);
+        } else{
+            Log.d(TAG, "No Saved Instance");
+            mMovieList = new ArrayList<Movie>();
+        }
+
+        mMovieAdapter = new MovieAdapter(getActivity(), mMovieList);
         mGridView.setAdapter(mMovieAdapter);
 
         Log.v(TAG, mMovieAdapter.toString());
@@ -111,6 +122,15 @@ public class MainActivityFragment extends Fragment implements AsyncTaskDelegate 
             mMovieAdapter.clear();
             ArrayList<Movie> movieList = (ArrayList<Movie>) output;
             mMovieAdapter.addAll(movieList);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mMovieList != null){
+            Log.d(TAG, "Saving");
+            outState.putParcelableArrayList(ON_SAVED_INSTANCE, mMovieList);
         }
     }
 }

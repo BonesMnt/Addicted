@@ -47,6 +47,7 @@ public class DetailFragment extends Fragment implements AsyncTaskDelegate {
     private RecyclerView mTrailerRecycler;
     private TextView mTrailerError;
     private TextView mReviewError;
+    private static final String ON_SAVED_INSTANCE = "DetailCallback";
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -57,14 +58,8 @@ public class DetailFragment extends Fragment implements AsyncTaskDelegate {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-
-        Intent intent = getActivity().getIntent();
-
-        if (intent != null && intent.hasExtra(Movie.MOVIE_KEY)) {
-            mMovie = intent.getParcelableExtra(Movie.MOVIE_KEY);
-        }
-
-        Log.v(TAG, mMovie.toString());
+        mTrailerList = new ArrayList<Trailer>();
+        mReviewList = new ArrayList<>();
 
         TextView detailTitle = (TextView) rootView.findViewById(R.id.detail_title);
         TextView detailReleaseDate = (TextView) rootView.findViewById(R.id.detail_releaseDate);
@@ -75,6 +70,35 @@ public class DetailFragment extends Fragment implements AsyncTaskDelegate {
         mReviewProgress = (ProgressBar) rootView.findViewById(R.id.pb_loading_review);
         mTrailerError = (TextView) rootView.findViewById(R.id.tv_error_trailer);
         mReviewError = (TextView) rootView.findViewById(R.id.tv_error_review);
+        mTrailerRecycler = (RecyclerView) rootView.findViewById(R.id.rv_trailers);
+        mReviewRecycler = (RecyclerView) rootView.findViewById(R.id.rv_reviews);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(ON_SAVED_INSTANCE)){
+            Log.d(TAG, "Restoring Saved Instance");
+            mMovie = savedInstanceState.getParcelable(ON_SAVED_INSTANCE);
+            Log.d(TAG, mMovie.toString());
+            mTrailerList.addAll(mMovie.getTrailers());
+            mReviewList.addAll(mMovie.getReviews());
+            Log.d(TAG, mTrailerList.toString());
+            Log.d(TAG, mReviewList.toString());
+
+            mTrailerProgress.setVisibility(View.GONE);
+            mReviewProgress.setVisibility(View.GONE);
+            mTrailerRecycler.setVisibility(View.VISIBLE);
+            mReviewRecycler.setVisibility(View.VISIBLE);
+        }else {
+            Log.d(TAG, "No Saved Instance");
+            Intent intent = getActivity().getIntent();
+
+            if (intent != null && intent.hasExtra(Movie.MOVIE_KEY)) {
+                mMovie = intent.getParcelableExtra(Movie.MOVIE_KEY);
+            }
+            mTrailerRecycler.setVisibility(View.GONE);
+            mReviewRecycler.setVisibility(View.GONE);
+        }
+
+        Log.v(TAG, mMovie.toString());
+
 
         detailTitle.setText(mMovie.getOriginalTitle());
         detailReleaseDate.setText(mMovie.getReleaseDate());
@@ -85,25 +109,20 @@ public class DetailFragment extends Fragment implements AsyncTaskDelegate {
                 .placeholder(R.drawable.placeholder)
                 .into(detailPoster);
 
-        mTrailerRecycler = (RecyclerView) rootView.findViewById(R.id.rv_trailers);
-        mReviewRecycler = (RecyclerView) rootView.findViewById(R.id.rv_reviews);
 
-        mTrailerRecycler.setVisibility(View.GONE);
-        mReviewRecycler.setVisibility(View.GONE);
 
         RecyclerView.LayoutManager layoutManagerTrailer = new GridLayoutManager(getContext(), 2);
         mTrailerRecycler.setLayoutManager(layoutManagerTrailer);
-
-        mTrailerList = new ArrayList<Trailer>();
-
-        mTrailerAdapter = new TrailerAdapter(getActivity(), mTrailerList);
-        mTrailerRecycler.setAdapter(mTrailerAdapter);
-        Log.v(TAG, mTrailerAdapter.toString());
+        mTrailerRecycler.setNestedScrollingEnabled(false);
 
         RecyclerView.LayoutManager layoutManagerReview = new LinearLayoutManager(getContext());
         mReviewRecycler.setLayoutManager(layoutManagerReview);
 
-        mReviewList = new ArrayList<>();
+
+        mTrailerAdapter = new TrailerAdapter(getActivity(), mTrailerList);
+        mTrailerRecycler.setAdapter(mTrailerAdapter);
+        mTrailerAdapter.notifyDataSetChanged();
+        Log.v(TAG, mTrailerAdapter.toString());
 
         mReviewAdapter = new ReviewAdapter(getActivity(), mReviewList);
         mReviewRecycler.setAdapter(mReviewAdapter);
@@ -163,12 +182,14 @@ public class DetailFragment extends Fragment implements AsyncTaskDelegate {
                 if (downloadedList.get(0) instanceof Review) {
                     mReviewRecycler.setVisibility(View.VISIBLE);
                     mReviewList.clear();
-                    mReviewList.addAll(downloadedList);
+                    mMovie.setReviews(downloadedList);
+                    mReviewList.addAll(mMovie.getReviews());
                     mReviewAdapter.notifyDataSetChanged();
                 } else if (downloadedList.get(0) instanceof Trailer) {
                     mTrailerRecycler.setVisibility(View.VISIBLE);
                     mTrailerList.clear();
-                    mTrailerList.addAll(downloadedList);
+                    mMovie.setTrailers(downloadedList);
+                    mTrailerList.addAll(mMovie.getTrailers());
                     mTrailerAdapter.notifyDataSetChanged();
                 }
             } else{
@@ -181,5 +202,14 @@ public class DetailFragment extends Fragment implements AsyncTaskDelegate {
             }
         }
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "Saving");
+        if (mMovie.getTrailers() != null && mMovie.getReviews() != null){
+            outState.putParcelable(ON_SAVED_INSTANCE, mMovie);
+        }
     }
 }

@@ -69,6 +69,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
                 String trailerKey = trailer.getKey();
                 Intent webIntent = new Intent(Intent.ACTION_VIEW);
                 webIntent.setData(Uri.parse(Trailer.VIDEO_BASE_URL+trailerKey));
+                Log.d(TAG, "Trailer Url: " + Trailer.VIDEO_BASE_URL+trailerKey);
                 mContext.startActivity(webIntent);
             }
         });
