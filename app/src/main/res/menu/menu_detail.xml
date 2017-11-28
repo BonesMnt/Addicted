@@ -2,6 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mnt.bones.addicted.activities.DetailActivity">
+
+    <item
+        android:id="@+id/action_favorite"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/star_off"
+        android:title="@string/action_favorite"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

@@ -2,10 +2,10 @@ package com.mnt.bones.addicted.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +15,11 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 
 import com.mnt.bones.addicted.Movie;
-import com.mnt.bones.addicted.services.MovieService;
 import com.mnt.bones.addicted.R;
 import com.mnt.bones.addicted.activities.DetailActivity;
 import com.mnt.bones.addicted.adapters.MovieAdapter;
 import com.mnt.bones.addicted.interfaces.AsyncTaskDelegate;
+import com.mnt.bones.addicted.services.MovieService;
 import com.mnt.bones.addicted.utilities.NetworkUtils;
 
 import java.util.ArrayList;
@@ -79,22 +79,28 @@ public class MainActivityFragment extends Fragment implements AsyncTaskDelegate 
 
     private void updateList() {
 
-        if (NetworkUtils.hasInternetConnection(getContext())) {
-            MovieService downloadMovieData = new MovieService(this);
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String sortBy = preferences.getString(getString(R.string.pref_key),
-                    getString(R.string.pref_sort_popular));
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortBy = preferences.getString(getString(R.string.pref_key),
+                getString(R.string.pref_sort_popular));
+        MovieService downloadMovieData = new MovieService(getContext(), this);
+
+        if (sortBy.equals(getString(R.string.pref_sort_favorite))) {
+            //Toast.makeText(getContext(), "tryed to load pref= "+sortBy, Toast.LENGTH_LONG).show();
             downloadMovieData.execute(sortBy);
-        } else {
-            View view = getActivity().findViewById(R.id.container);
-            Snackbar alertSnackbar = Snackbar.make(view, getString(R.string.no_internet_alert), Snackbar.LENGTH_LONG);
-            alertSnackbar.setAction(getString(R.string.retry), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    updateList();
-                }
-            });
-            alertSnackbar.show();
+        } else{
+            if (NetworkUtils.hasInternetConnection(getContext())) {
+                downloadMovieData.execute(sortBy);
+            } else {
+                View view = getActivity().findViewById(R.id.container);
+                Snackbar alertSnackbar = Snackbar.make(view, getString(R.string.no_internet_alert), Snackbar.LENGTH_LONG);
+                alertSnackbar.setAction(getString(R.string.retry), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        updateList();
+                    }
+                });
+                alertSnackbar.show();
+            }
         }
     }
 

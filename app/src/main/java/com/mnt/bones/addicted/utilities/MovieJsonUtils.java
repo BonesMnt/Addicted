@@ -1,18 +1,18 @@
 package com.mnt.bones.addicted.utilities;
 
-import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.mnt.bones.addicted.Movie;
 import com.mnt.bones.addicted.Review;
 import com.mnt.bones.addicted.Trailer;
+import com.mnt.bones.addicted.data.AddictedContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Utility functions to handle JSON data.
@@ -142,4 +142,40 @@ public class MovieJsonUtils {
 
     }
 
+    public static ArrayList<Movie> getMoiveFromDB(Cursor cursor) {
+
+        ArrayList<Movie> movieList = new ArrayList<>();
+
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()){
+
+            String movieId = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AddictedContract.MoviesEntry.COLUMN_MOVIE_ID));
+            String originalTitle = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AddictedContract.MoviesEntry.COLUMN_MOVIE_TITLE));
+            String poster = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AddictedContract.MoviesEntry.COLUMN_MOVIE_POSTER));
+            String overview = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AddictedContract.MoviesEntry.COLUMN_MOVIE_OVERVIEW));
+            String rating = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AddictedContract.MoviesEntry.COLUMN_MOVIE_RATING));
+            String releaseDate = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AddictedContract.MoviesEntry.COLUMN_MOVIE_RELEASE));
+
+            Movie movieObject = new Movie(movieId, originalTitle, null, overview, null, releaseDate);
+            movieObject.setPoster(poster);
+            movieObject.setRating(rating);
+
+            Log.v(TAG, movieObject.toString());
+
+            movieList.add(movieObject);
+
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+
+        return movieList;
+    }
 }

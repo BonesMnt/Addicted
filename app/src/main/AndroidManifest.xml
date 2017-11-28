@@ -37,6 +37,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mnt.bones.addicted.activities.MainActivity" />
         </activity>
+
+        <!-- Content Provider -->
+        <provider
+            android:authorities="com.mnt.bones.addicted"
+            android:name=".data.AddictedContentProvider"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
